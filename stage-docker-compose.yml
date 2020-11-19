@@ -1,0 +1,19 @@
+version: '3'
+
+services: 
+  earth:
+    image: golang
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    restart: on-failure
+    networks:
+      - backend
+
+
+
+
+networks: 
+  backend:
