@@ -6,10 +6,21 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+    env_file: 
+      - ./earth.env
     ports:
       - 8080:8080
     restart: on-failure
     networks:
+      - backend
+    depends_on: 
+      - redis-auth
+  redis-auth:
+    image: "redis"
+    ports: 
+      - "127.0.0.1:10332:6379"
+    restart: on-failure
+    networks: 
       - backend
 
 
