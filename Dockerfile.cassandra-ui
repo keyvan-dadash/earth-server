@@ -1,0 +1,7 @@
+FROM ruby
+
+RUN gem install cassandra-web
+COPY cassandra-ui.sh /
+RUN chmod +x /cassandra-ui.sh
+
+CMD ["/cassandra-ui.sh"]

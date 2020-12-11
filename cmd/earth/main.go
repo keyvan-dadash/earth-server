@@ -11,7 +11,7 @@ import (
 
 func checkDB() {
 	cluster := gocql.NewCluster("cassandra")
-	cluster.Keyspace = "example"
+	cluster.Keyspace = "DefaultKeyspace"
 	cluster.Consistency = gocql.Quorum
 	session, _ := cluster.CreateSession()
 	defer session.Close()

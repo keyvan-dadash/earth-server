@@ -41,7 +41,10 @@ services:
       - backend
 
   cassandra-web:
-    image: metavige/cassandra-web
+    image: cassandra-ui
+    build: 
+      context: .
+      dockerfile: Dockerfile.cassandra-ui
     environment: 
       - CASSANDRA_HOST=cassandra
       - CASSANDRA_USER=cassandra
@@ -49,7 +52,9 @@ services:
     depends_on: 
       - cassandra
     ports:
-      - '127.0.0.1:10334:3000'
+      - '10334:3000'
+    networks: 
+      - backend
 
 
 
