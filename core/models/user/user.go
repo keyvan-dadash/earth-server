@@ -1,4 +1,4 @@
-package models
+package user
 
 import (
 	"errors"
@@ -9,7 +9,6 @@ import (
 
 //User model
 type User struct {
-	id       int
 	username string
 	password string
 	uuid     uuid.UUID

@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o earth ./cmd/earth/
+RUN go build -o earth .
 
 FROM ubuntu:latest  
 

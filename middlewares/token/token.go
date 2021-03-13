@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/sod-lol/earth-server/internal/app/authentication/models"
+	models "github.com/sod-lol/earth-server/core/models/user"
 )
 
 //CreateToken is function that generate token base on given User and return generated token
