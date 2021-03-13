@@ -4,6 +4,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
+//CheckOrCreateUserTable is function that check if user table exist if not then going to cerate table
 func CheckOrCreateUserTable(session *gocql.Session) (bool, error) {
 
 	scanner := session.Query(`SELECT table_name 
@@ -23,7 +24,3 @@ func CheckOrCreateUserTable(session *gocql.Session) (bool, error) {
 	return results == nil, results
 
 }
-
-// func InsertUser(user *User) (bool, error) {
-
-// }
