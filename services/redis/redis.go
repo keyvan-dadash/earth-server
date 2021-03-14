@@ -34,3 +34,15 @@ func (r *Redis) Set(key string, value interface{}, expiration time.Duration) *re
 func (r *Redis) Get(key string) *redis.StringCmd {
 	return r.client.Get(r.ctx, key)
 }
+
+//Delete witll delete value with given key
+func (r *Redis) Delete(key string) *redis.IntCmd {
+	return r.client.Del(r.ctx, key)
+}
+
+//Contain will check if given key is present in DB
+func (r *Redis) Contain(key string) (bool, error) {
+	_, err := r.Get(key).Result()
+
+	return err == nil, err
+}

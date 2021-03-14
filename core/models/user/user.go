@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -9,9 +10,12 @@ import (
 
 //User model
 type User struct {
-	username string
-	password string
-	uuid     uuid.UUID
+	username   string
+	password   string
+	Nickname   string
+	UUID       uuid.UUID
+	IsOnline   bool
+	JoinedDate time.Time
 }
 
 //CreateUser create user instance based on given username and password
@@ -22,9 +26,12 @@ func CreateUser(username string, password string) (*User, error) {
 	}
 
 	return &User{
-		username: username,
-		password: hashedPassword,
-		uuid:     uuid.NewV4(),
+		username:   username,
+		password:   hashedPassword,
+		Nickname:   username,
+		UUID:       uuid.NewV4(),
+		JoinedDate: time.Now(),
+		IsOnline:   false,
 	}, nil
 }
 
