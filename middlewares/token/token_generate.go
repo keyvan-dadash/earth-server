@@ -10,7 +10,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-<<<<<<< HEAD
 type AccessTokenDetail struct {
 	AccessToken       string
 	AccessTokenUUID   string
@@ -32,15 +31,6 @@ type RefreshTokenDetail struct {
 type TokenDetails struct {
 	at *AccessTokenDetail
 	rt *RefreshTokenDetail
-=======
-type TokenDetails struct {
-	AccessToken        string
-	RefreshToken       string
-	AccessTokenUUID    string
-	RefreshTokenUUID   string
-	AccessTokenExpire  int64
-	RefreshTokenExpire int64
->>>>>>> f46318443f7afea33a987ff20b8c2d256b8c2126
 }
 
 //CreateToken is function that generate token base on given username and return generated token
@@ -70,7 +60,6 @@ func CreateToken(username string) (*TokenDetails, error) {
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 
-<<<<<<< HEAD
 	signedAccess, _ := at.SignedString([]byte(accessSecretKey))
 
 	accessTokenDetail := &AccessTokenDetail{
@@ -79,8 +68,6 @@ func CreateToken(username string) (*TokenDetails, error) {
 		AccessTokenExpire: accessExpire,
 	}
 
-=======
->>>>>>> f46318443f7afea33a987ff20b8c2d256b8c2126
 	//creating refresh
 	refreshClaims := jwt.MapClaims{}
 	refreshClaims["username"] = username
@@ -93,7 +80,6 @@ func CreateToken(username string) (*TokenDetails, error) {
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 
-<<<<<<< HEAD
 	signedRefresh, _ := rt.SignedString([]byte(refreshSecretKey))
 
 	refreshTokenDetail := &RefreshTokenDetail{
@@ -133,24 +119,6 @@ func CreateTokenBasedOnRefreshToken(rt *RefreshTokenDetail) (*TokenDetails, erro
 
 //ExtractRefreshTokenFrom given refreshToken stirng
 func ExtractRefreshTokenFrom(refreshToken string) (*RefreshTokenDetail, error) {
-=======
-	signedAccess, _ := at.SignedString([]byte(accessSecretKey))
-	signedRefresh, _ := rt.SignedString([]byte(refreshSecretKey))
-
-	td := &TokenDetails{
-		AccessToken:        signedAccess,
-		RefreshToken:       signedRefresh,
-		AccessTokenUUID:    accessUUID,
-		RefreshTokenUUID:   refreshUUID,
-		AccessTokenExpire:  accessExpire,
-		RefreshTokenExpire: refreshExpire,
-	}
-
-	return td, nil
-}
-
-func CreateTokenBasedOnRefreshToken(refreshToken string) (*TokenDetails, error) {
->>>>>>> f46318443f7afea33a987ff20b8c2d256b8c2126
 
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 
@@ -171,11 +139,7 @@ func CreateTokenBasedOnRefreshToken(refreshToken string) (*TokenDetails, error) 
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
-<<<<<<< HEAD
 	if ok && token.Valid {
-=======
-	if ok && token.Valid { //TODO: extracting refresh and access token login must be sperate
->>>>>>> f46318443f7afea33a987ff20b8c2d256b8c2126
 		refreshUUID, ok := claims["refresh_uuid"].(string)
 
 		if !ok {
@@ -194,7 +158,6 @@ func CreateTokenBasedOnRefreshToken(refreshToken string) (*TokenDetails, error) 
 			return nil, fmt.Errorf("token is invalid because cannot retrieve expire time")
 		}
 
-<<<<<<< HEAD
 		return &RefreshTokenDetail{
 			RefreshToken:       refreshToken,
 			RefreshTokenUUID:   refreshUUID,
@@ -258,23 +221,4 @@ func ExtractAccessTokenFrom(accessToken string) (*AccessTokenDetail, error) {
 
 	return nil, fmt.Errorf("token is invalid")
 
-=======
-		if _, err := DeleteRefreshToken(refreshUUID); err != nil { //TODO: we have some passing db connection we must resolve this
-			return nil, err
-		}
-
-		rt := time.Unix(refreshExpireTime, 0)
-		now := time.Now()
-
-		newToken, err := CreateToken(username)
-
-		if err != nil {
-			return nil, err
-		}
-
-		newToken.RefreshTokenExpire = int64(rt.Sub(now))
-
-		return newToken, nil
-	}
->>>>>>> f46318443f7afea33a987ff20b8c2d256b8c2126
 }
