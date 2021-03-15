@@ -5,6 +5,7 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/sirupsen/logrus"
 	"github.com/sod-lol/earth-server/config"
+	"github.com/sod-lol/earth-server/middlewares/token"
 	"github.com/sod-lol/earth-server/routers"
 	"github.com/sod-lol/earth-server/services/redis"
 )
@@ -13,7 +14,12 @@ func connectToDB() *gocql.Session {
 	cluster := gocql.NewCluster("cassandra")
 	cluster.Keyspace = "earth"
 	cluster.Consistency = gocql.Quorum
-	session, _ := cluster.CreateSession()
+	session, err := cluster.CreateSession()
+
+	if err != nil {
+		logrus.Fatalf("Cannot create session and connect to database. err: %v", err)
+		return nil
+	}
 
 	return session
 }
@@ -41,7 +47,7 @@ func main() {
 
 	earth := createEarthRouter()
 
-	earth.GET("/ping", func(c *gin.Context) {
+	earth.GET("/ping", token.TokenMiddleWareAuth(redisAuth), func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})

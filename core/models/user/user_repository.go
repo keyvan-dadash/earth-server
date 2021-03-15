@@ -7,6 +7,6 @@ type UserRepo struct {
 }
 
 //InsertUser
-func (ur *UserRepo) InsertUser(user *User) (bool, error) {
+// func (ur *UserRepo) InsertUser(user *User) (bool, error) {
 
-}
+// }
