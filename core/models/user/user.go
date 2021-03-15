@@ -12,6 +12,7 @@ import (
 type User struct {
 	username   string
 	password   string
+	Email      string
 	Nickname   string
 	UUID       uuid.UUID
 	IsOnline   bool
