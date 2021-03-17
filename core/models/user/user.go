@@ -11,21 +11,20 @@ import (
 
 var userTableMeta = table.Metadata{
 	Name:    "user",
-	Columns: []string{"username", "password", "email", "nickname", "uuid", "isOnline", "joinedData"},
-	PartKey: []string{"first_name"},
-	SortKey: []string{"last_name"},
+	Columns: []string{"username", "password"},
+	PartKey: []string{"username"},
+	SortKey: []string{"username"},
 }
 
 var userTable = table.New(userTableMeta)
 
 //User model
 type User struct {
-	username   string
-	password   string
+	Username   string
+	Password   string
 	Email      string
 	Nickname   string
 	UUID       uuid.UUID
-	IsOnline   bool
 	JoinedDate time.Time
 }
 
@@ -37,23 +36,22 @@ func CreateUser(username string, password string) (*User, error) {
 	}
 
 	return &User{
-		username:   username,
-		password:   hashedPassword,
+		Username:   username,
+		Password:   hashedPassword,
 		Nickname:   username,
 		UUID:       uuid.NewV4(),
 		JoinedDate: time.Now(),
-		IsOnline:   false,
 	}, nil
 }
 
 //GetUsername return user username
 func (u *User) GetUsername() string {
-	return u.username
+	return u.Username
 }
 
 //GetPassword return user password
 func (u *User) GetPassword() string {
-	return u.password
+	return u.Password
 }
 
 //VerifyPassword is function that verfiy given password

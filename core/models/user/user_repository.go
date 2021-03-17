@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/scylladb/gocqlx/v2"
-	"github.com/scylladb/gocqlx/v2/qb"
 )
 
 type UserRepoInterface interface {
@@ -18,7 +17,7 @@ type UserRepo struct {
 
 //InsertUser function will try to insert to db
 func (ur *UserRepo) InsertUser(user *User) error {
-	return ur.Session.Query(userTable.Insert()).BindStruct(user).ExecRelease()
+	return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
 }
 
 func (ur *UserRepo) RetrieveUser(user *User) error {
@@ -26,19 +25,12 @@ func (ur *UserRepo) RetrieveUser(user *User) error {
 }
 
 func (ur *UserRepo) UpdateUser(username string, updatedUser *User, updatedColumns ...string) (bool, error) {
-
-	q := qb.Update("user").
-		Set(updatedColumns...).
-		Where(qb.Eq("username")).
-		Query(*ur.Session).
-		BindStruct(updatedUser)
-
-	return q.ExecCASRelease()
+	return ur.Session.Query(userTable.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease()
 }
 
 func (ur *UserRepo) DeleteUser(username string) error {
 	user := User{
-		username: username,
+		Username: username,
 	}
 	return ur.Session.Query(userTable.Delete()).BindStruct(user).ExecRelease()
 }

@@ -8,9 +8,9 @@ import (
 
 func ParseUserFromMap(retrievedUserFieldsMap map[string]interface{}, user *User) error { //TODO: exactly how we need error?
 
-	user.username = retrievedUserFieldsMap["username"].(string)
+	user.Username = retrievedUserFieldsMap["username"].(string)
 
-	user.password = retrievedUserFieldsMap["password"].(string)
+	user.Password = retrievedUserFieldsMap["password"].(string)
 
 	user.Email = retrievedUserFieldsMap["email"].(string)
 
@@ -18,7 +18,7 @@ func ParseUserFromMap(retrievedUserFieldsMap map[string]interface{}, user *User)
 
 	user.UUID = retrievedUserFieldsMap["uuid"].(uuid.UUID)
 
-	user.IsOnline = retrievedUserFieldsMap["uuid"].(bool)
+	// user.Isonline = retrievedUserFieldsMap["uuid"].(bool)
 
 	user.JoinedDate = retrievedUserFieldsMap["uuid"].(time.Time)
 
