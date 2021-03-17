@@ -1,10 +1,8 @@
 package user
 
 import (
-	"fmt"
-
-	"github.com/gocql/gocql"
-	"github.com/sirupsen/logrus"
+	"github.com/scylladb/gocqlx/v2"
+	"github.com/scylladb/gocqlx/v2/qb"
 )
 
 type UserRepoInterface interface {
@@ -15,68 +13,32 @@ type UserRepoInterface interface {
 }
 
 type UserRepo struct {
-	*gocql.Session
+	*gocqlx.Session
 }
 
 //InsertUser function will try to insert to db
 func (ur *UserRepo) InsertUser(user *User) error {
-	err := ur.Session.Query(`INSERT INTO user (username, password, email, nickname, uuid, isonline, joineddate) VALUES 
-						(?, ?, ?, ?, ?, ?, now()) IF NOT EXISTS`).Exec()
-
-	if err != nil {
-		logrus.Debugf("User with username %v already exist", user.username)
-		return err
-	}
-
-	return err
+	return ur.Session.Query(userTable.Insert()).BindStruct(user).ExecRelease()
 }
 
-func (ur *UserRepo) RetrieveUser(username string) (*User, error) {
-	retrievedMap, err := ur.Session.Query(`SELECT * FROM user WHERE username = ?`, username).Iter().SliceMap()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(retrievedMap) > 1 {
-		logrus.Fatal("[Fatal](RetrieveUser) Found two user with same username")
-		return nil, fmt.Errorf("Found two user with same username")
-	}
-
-	user := &User{}
-
-	if err := ParseUserFromMap(retrievedMap[0], user); err != nil {
-		return nil, err
-	}
-
-	return user, nil
+func (ur *UserRepo) RetrieveUser(user *User) error {
+	return ur.Session.Query(userTable.Get()).BindStruct(*user).GetRelease(user)
 }
 
-func (ur *UserRepo) UpdateUser(username string, updatedUser *User) error {
+func (ur *UserRepo) UpdateUser(username string, updatedUser *User, updatedColumns ...string) (bool, error) {
 
-	err := ur.Session.Query(`
-			UPDATE user 
-				SET username=?,
-					password=?,
-					email = ?,
-					nickname = ?,
-					isOnline = ?
-			WHERE username = ?`, updatedUser.username, updatedUser.password, updatedUser.Email, updatedUser.Nickname, updatedUser.IsOnline, username)
+	q := qb.Update("user").
+		Set(updatedColumns...).
+		Where(qb.Eq("username")).
+		Query(*ur.Session).
+		BindStruct(updatedUser)
 
-	if err != nil {
-		return fmt.Errorf("updating user faild. err: %v", err)
-	}
-
-	return nil
+	return q.ExecCASRelease()
 }
 
 func (ur *UserRepo) DeleteUser(username string) error {
-	err := ur.Session.Query(`
-			DELETE FROM user WHERE username = ?`, username)
-
-	if err != nil {
-		return fmt.Errorf("deleting user faild. err: %v", err)
+	user := User{
+		username: username,
 	}
-
-	return nil
+	return ur.Session.Query(userTable.Delete()).BindStruct(user).ExecRelease()
 }

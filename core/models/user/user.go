@@ -5,8 +5,18 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+	"github.com/scylladb/gocqlx/v2/table"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var userTableMeta = table.Metadata{
+	Name:    "user",
+	Columns: []string{"username", "password", "email", "nickname", "uuid", "isOnline", "joinedData"},
+	PartKey: []string{"first_name"},
+	SortKey: []string{"last_name"},
+}
+
+var userTable = table.New(userTableMeta)
 
 //User model
 type User struct {
