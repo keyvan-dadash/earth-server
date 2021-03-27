@@ -102,7 +102,7 @@ func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 
 	testUser.Email = "gg@gmail.com"
 	testUser.Nickname = "shit"
-	err = UserRepository.InsertUser(testUser)
+	err = UserRepository.InsertUser(testUser, false)
 
 	if err != nil {
 		fmt.Printf("we faced to error: %v", err)

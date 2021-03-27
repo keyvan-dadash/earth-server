@@ -1,6 +1,9 @@
 package user
 
 import (
+	"errors"
+
+	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
 	"github.com/scylladb/gocqlx/v2/qb"
 )
@@ -17,8 +20,22 @@ type UserRepo struct {
 }
 
 //InsertUser function will try to insert to db
-func (ur *UserRepo) InsertUser(user *User) error {
-	return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
+func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
+	if !inserdUnique {
+		return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
+	}
+
+	if err := ur.RetrieveUser(user); err != nil {
+		if !errors.Is(err, gocql.ErrNotFound) {
+			return err
+		}
+
+		return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
+
+	}
+
+	return ErrDublicateUser
+
 }
 
 func (ur *UserRepo) RetrieveUser(user *User) error {

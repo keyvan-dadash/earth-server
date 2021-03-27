@@ -1,9 +1,11 @@
 package authentication
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gocql/gocql"
 	"github.com/sirupsen/logrus"
 	"github.com/sod-lol/earth-server/core/models/user"
 	"github.com/sod-lol/earth-server/middlewares/token"
@@ -29,8 +31,16 @@ func HandleLogin(redisDB *redis.Redis) gin.HandlerFunc {
 		}
 
 		if err := user.UserRepository.RetrieveUser(&retrivedUser); err != nil {
-			logrus.Errorf("Cannot retrive user. error: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{})
+			if !errors.Is(err, gocql.ErrNotFound) {
+				logrus.Errorf("Cannot retrive user. error: %v", err)
+				c.JSON(http.StatusInternalServerError, gin.H{})
+				return
+			}
+
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "user with given username not found",
+			})
+
 			return
 		}
 
@@ -90,9 +100,18 @@ func HandleSignUp() gin.HandlerFunc {
 		tempUser.Nickname = signUpJson.Nickname
 		tempUser.Email = signUpJson.Email
 
-		if err := user.UserRepository.InsertUser(tempUser); err != nil {
-			logrus.Errorf("Cannot insert user. error: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{})
+		if err := user.UserRepository.InsertUser(tempUser, true); err != nil {
+
+			if !errors.Is(err, user.ErrDublicateUser) {
+				logrus.Errorf("Cannot insert user. error: %v", err)
+				c.JSON(http.StatusInternalServerError, gin.H{})
+				return
+			}
+
+			c.JSON(http.StatusNotAcceptable, gin.H{
+				"error": "user with given username already exists",
+			})
+
 			return
 		}
 
