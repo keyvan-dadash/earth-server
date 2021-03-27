@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sod-lol/earth-server/controllers/authentication"
+	"github.com/sod-lol/earth-server/middlewares/token"
 	"github.com/sod-lol/earth-server/services/redis"
 )
 
@@ -16,4 +17,5 @@ func HandleAuthenticationApp(ctx context.Context, authRouter *gin.RouterGroup) {
 	authRouter.POST("/login", authentication.HandleLogin(redisDB))
 	authRouter.POST("/signup", authentication.HandleSignUp())
 	authRouter.POST("/refresh", authentication.HandleRefreshToken(redisDB))
+	authRouter.POST("/logout", token.TokenMiddleWareAuth(redisDB), authentication.HandleLogout(redisDB))
 }

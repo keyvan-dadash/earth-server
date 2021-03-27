@@ -166,3 +166,45 @@ func HandleRefreshToken(redisDB *redis.Redis) gin.HandlerFunc {
 
 	}
 }
+
+func HandleLogout(redisDB *redis.Redis) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		username := c.GetString("username")
+
+		if username == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "cannot retrieve username from access token",
+			})
+			return
+		}
+
+		refreshAndAccessUUID, err := token.GetRefreshAndAccessUUIDFrom(redisDB, username)
+
+		if err != nil {
+			logrus.Errorf("Cannot retrieve access and refresh token uuid from redis. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		if _, err := token.DeleteAccessToken(redisDB, refreshAndAccessUUID.AccessUUID); err != nil {
+			logrus.Errorf("Cannot delete access uuid from redis. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		if _, err := token.DeleteRefreshToken(redisDB, refreshAndAccessUUID.RefreshUUID); err != nil {
+			logrus.Errorf("Cannot delete refresh uuid from redis. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		if _, err := redisDB.Delete(username).Result(); err != nil {
+			logrus.Errorf("Cannot delete username from redis. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		c.JSON(http.StatusNoContent, gin.H{})
+
+	}
+}

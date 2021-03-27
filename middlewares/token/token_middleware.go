@@ -12,7 +12,7 @@ import (
 //TokenMiddleWareAuth is middleware that do token authentication
 func TokenMiddleWareAuth(redis *redis.Redis) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := AccessTokenValidation(redis, c.Request)
+		username, err := AccessTokenValidation(redis, c.Request)
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, err.Error())
@@ -20,24 +20,26 @@ func TokenMiddleWareAuth(redis *redis.Redis) gin.HandlerFunc {
 			return
 		}
 
+		c.Set("username", username)
+
 		c.Next()
 	}
 }
 
-//AccessTokenValidation is function that validate access token
-func AccessTokenValidation(redis *redis.Redis, r *http.Request) error {
+//AccessTokenValidation is function that validate access token and return username
+func AccessTokenValidation(redis *redis.Redis, r *http.Request) (string, error) {
 
 	accessToken, err := VerifyAccessToken(r)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if isContain, _ := redis.Contain(accessToken.AccessTokenUUID); !isContain {
-		return fmt.Errorf("token is invalid or expired")
+		return "", fmt.Errorf("token is invalid or expired")
 	}
 
-	return nil
+	return accessToken.Username, nil
 
 }
 
@@ -63,7 +65,7 @@ func VerifyAccessToken(r *http.Request) (*AccessTokenDetail, error) {
 func ExtractTokenFromRequest(r *http.Request) (string, error) {
 	bearToken := r.Header.Get("Authorization")
 
-	splitedTokenAndBear := strings.Split(bearToken, "")
+	splitedTokenAndBear := strings.Split(bearToken, " ")
 
 	if len(splitedTokenAndBear) == 2 {
 		return splitedTokenAndBear[1], nil

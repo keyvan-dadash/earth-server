@@ -1,11 +1,17 @@
 package token
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/sod-lol/earth-server/services/redis"
 )
+
+type RefreshAndAccessUUID struct {
+	RefreshUUID string
+	AccessUUID  string
+}
 
 //SaveTokenDetail is function for saving TokenDetail
 //TODO:its better design that reduce number of parameter
@@ -27,6 +33,23 @@ func SaveTokenDetail(redis *redis.Redis, tokendetail *TokenDetails, username str
 
 	if redisErr != nil {
 		logrus.Errorf("[Error](SaveTokenDetail) Error accured during set refresh token in redis. err: %v", redisErr)
+		return false, redisErr
+	}
+
+	binaryResult, err := json.Marshal(RefreshAndAccessUUID{
+		RefreshUUID: tokendetail.rt.RefreshTokenUUID,
+		AccessUUID:  tokendetail.at.AccessTokenUUID,
+	})
+
+	if err != nil {
+		logrus.Errorf("[Error](SaveTokenDetail) cannot marshal RefreshAndAccessUUID. err: %v", redisErr)
+		return false, err
+	}
+
+	redisErr = redis.Set(username, binaryResult, rt.Sub(now)).Err()
+
+	if redisErr != nil {
+		logrus.Errorf("[Error](SaveTokenDetail) Error accured during set user given refresh and access in redis. err: %v", redisErr)
 		return false, redisErr
 	}
 
@@ -83,4 +106,23 @@ func GetUsernameByAccessToken(redis *redis.Redis, accessToken string) (string, e
 
 	return username, nil
 
+}
+
+func GetRefreshAndAccessUUIDFrom(redis *redis.Redis, username string) (RefreshAndAccessUUID, error) {
+
+	refreshAndAccessUUID, err := redis.Get(username).Result()
+
+	if err != nil {
+		return RefreshAndAccessUUID{}, err
+	}
+
+	refreshAndAccessUUIDStruct := RefreshAndAccessUUID{}
+
+	err = json.Unmarshal([]byte(refreshAndAccessUUID), &refreshAndAccessUUIDStruct)
+
+	if err != nil {
+		return RefreshAndAccessUUID{}, err
+	}
+
+	return refreshAndAccessUUIDStruct, nil
 }
