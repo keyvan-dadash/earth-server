@@ -20,11 +20,11 @@ var userTable = table.New(userTableMeta)
 
 //User model
 type User struct {
-	Username   string
-	Password   string
-	Email      string
-	Nickname   string
-	UUID       uuid.UUID
+	Username   string    `participate:"true" kind:"pk" type:"text"`
+	Password   string    `participate:"true" type:"text"`
+	Email      string    `participate:"true" type:"text"`
+	Nickname   string    `participate:"true" type:"text"`
+	UUID       uuid.UUID `participate:"true" type:"varchar"`
 	JoinedDate time.Time
 }
 
