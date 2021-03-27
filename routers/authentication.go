@@ -14,4 +14,5 @@ func HandleAuthenticationApp(ctx context.Context, authRouter *gin.RouterGroup) {
 	redisDB := ctx.Value("redisDB").(*redis.Redis)
 
 	authRouter.POST("/login", authentication.HandleLogin(redisDB))
+	authRouter.POST("/signup", authentication.HandleSignUp())
 }

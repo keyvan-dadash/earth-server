@@ -63,3 +63,40 @@ func HandleLogin(redisDB *redis.Redis) gin.HandlerFunc {
 
 	}
 }
+
+type signUpJsonExpect struct {
+	Username string `form:"username" json:"username" xml:"username"  binding:"required"`
+	Password string `form:"password" json:"password" xml:"password" binding:"required"`
+	Email    string `form:"email" json:"email" xml:"email" binding:"required"`
+	Nickname string `form:"nickname" json:"nickname" xml:"nickname" binding:"-"`
+}
+
+func HandleSignUp() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var signUpJson signUpJsonExpect
+
+		if err := c.ShouldBindJSON(&signUpJson); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		tempUser, err := user.CreateUser(signUpJson.Username, signUpJson.Password)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		tempUser.Nickname = signUpJson.Nickname
+		tempUser.Email = signUpJson.Email
+
+		if err := user.UserRepository.InsertUser(tempUser); err != nil {
+			logrus.Errorf("Cannot insert user. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{})
+
+	}
+}
