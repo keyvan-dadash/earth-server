@@ -11,7 +11,7 @@ import (
 
 var userTableMeta = table.Metadata{
 	Name:    "user",
-	Columns: []string{"username", "password"},
+	Columns: []string{"username", "password", "email", "nickname", "uuid", "joineddate"},
 	PartKey: []string{"username"},
 	SortKey: []string{"username"},
 }
@@ -19,13 +19,13 @@ var userTableMeta = table.Metadata{
 var userTable = table.New(userTableMeta)
 
 //User model
-type User struct {
+type User struct { //TODO: we should clean a little bit this akward field names and provide better field nameing
 	Username   string    `participate:"true" kind:"pk" type:"text"`
 	Password   string    `participate:"true" type:"text"`
 	Email      string    `participate:"true" type:"text"`
 	Nickname   string    `participate:"true" type:"text"`
-	UUID       uuid.UUID `participate:"true" type:"text"`
-	JoinedDate time.Time `participate:"true" type:"timestamp"`
+	Uuid       string    `participate:"true" type:"text"`
+	Joineddate time.Time `participate:"true" type:"timestamp"`
 }
 
 //CreateUser create user instance based on given username and password
@@ -39,8 +39,8 @@ func CreateUser(username string, password string) (*User, error) {
 		Username:   username,
 		Password:   hashedPassword,
 		Nickname:   username,
-		UUID:       uuid.NewV4(),
-		JoinedDate: time.Now(),
+		Uuid:       uuid.NewV4().String(),
+		Joineddate: time.Now(),
 	}, nil
 }
 
@@ -68,6 +68,5 @@ func hashAndSaltPassword(password string) (string, error) {
 	if err != nil {
 		return "", errors.New("cannot generate hash from password")
 	}
-
 	return string(hash), nil
 }

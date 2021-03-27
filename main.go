@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
@@ -37,6 +39,9 @@ func configAndSetupDB(session *gocqlx.Session) (bool, error) {
 
 func main() {
 
+	root := context.Background()
+	defer root.Done()
+
 	session := connectToDB()
 	defer session.Close()
 
@@ -46,6 +51,7 @@ func main() {
 	}
 
 	redisAuth := redis.CreateRedisClient("redis-auth:6379", "", 0)
+	ctxWithRedis := context.WithValue(root, "redisDB", redisAuth)
 
 	earth := createEarthRouter()
 
@@ -55,7 +61,7 @@ func main() {
 		})
 	})
 
-	routers.HandleAuthenticationApp(earth.Group("/auth"), redisAuth)
+	routers.HandleAuthenticationApp(ctxWithRedis, earth.Group("/auth"))
 	earth.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 
 }

@@ -96,6 +96,14 @@ func CreateToken(username string) (*TokenDetails, error) {
 	return td, nil
 }
 
+func (t *TokenDetails) GetAccessToken() string {
+	return t.at.AccessToken
+}
+
+func (t *TokenDetails) GetRefreshToken() string {
+	return t.rt.RefreshToken
+}
+
 //CreateTokenBasedOnRefreshToken will renew access and refresh token but expire time of refresh token
 //remain same because we want after speific period user login in to his account
 //Note: this function will not delete previous refresh token uuid from database

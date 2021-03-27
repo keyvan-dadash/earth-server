@@ -16,11 +16,11 @@ func ParseUserFromMap(retrievedUserFieldsMap map[string]interface{}, user *User)
 
 	user.Nickname = retrievedUserFieldsMap["nickname"].(string)
 
-	user.UUID = retrievedUserFieldsMap["uuid"].(uuid.UUID)
+	user.Uuid = retrievedUserFieldsMap["uuid"].(uuid.UUID).String()
 
 	// user.Isonline = retrievedUserFieldsMap["uuid"].(bool)
 
-	user.JoinedDate = retrievedUserFieldsMap["uuid"].(time.Time)
+	user.Joineddate = retrievedUserFieldsMap["uuid"].(time.Time)
 
 	return nil
 

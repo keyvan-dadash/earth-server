@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -32,6 +33,8 @@ var CassandraAllowedSimpleDataType = []string{
 	"varint",
 }
 
+var UserRepository *UserRepo
+
 //CheckOrCreateUserTable is function that check if user table exist if not then going to cerate table
 func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 
@@ -39,6 +42,10 @@ func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 	// add field's to table without every time configuration
 
 	rawSession := session.Session
+
+	UserRepository = &UserRepo{
+		Session: session,
+	}
 
 	scanner := rawSession.Query(`SELECT table_name
 	FROM system_schema.tables WHERE keyspace_name='earth' And table_name='user';`).Iter().Scanner()
@@ -91,18 +98,15 @@ func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 		}
 	}
 
-	// userRep := UserRepo{
-	// 	Session: session,
-	// }
+	testUser, _ := CreateUser("loca2", "loca1")
 
-	// err = userRep.InsertUser(&User{
-	// 	Username: "ali",
-	// 	Password: "haqha",
-	// })
+	testUser.Email = "gg@gmail.com"
+	testUser.Nickname = "shit"
+	err = UserRepository.InsertUser(testUser)
 
-	// if err != nil {
-	// 	fmt.Printf("we faced to error: %v", err)
-	// }
+	if err != nil {
+		fmt.Printf("we faced to error: %v", err)
+	}
 
 	return true, nil
 
