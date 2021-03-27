@@ -15,4 +15,5 @@ func HandleAuthenticationApp(ctx context.Context, authRouter *gin.RouterGroup) {
 
 	authRouter.POST("/login", authentication.HandleLogin(redisDB))
 	authRouter.POST("/signup", authentication.HandleSignUp())
+	authRouter.POST("/refresh", authentication.HandleRefreshToken(redisDB))
 }

@@ -160,11 +160,18 @@ func ExtractRefreshTokenFrom(refreshToken string) (*RefreshTokenDetail, error) {
 			return nil, fmt.Errorf("token is invalid because cannot retrieve username")
 		}
 
-		refreshExpireTime, ok := claims["expire_time"].(int64)
+		//the reason that we convert epire time to float 64 its kinda weird
+		// it seems when we retrive json from browser its convert to float 64
+		//because js only support 64 floating points so we should first conver to float64
+		//then after that we should convert to int64
+		//more information: https://stackoverflow.com/a/29690346
+		_, ok = claims["expire_time"].(float64)
 
 		if !ok {
 			return nil, fmt.Errorf("token is invalid because cannot retrieve expire time")
 		}
+
+		refreshExpireTime := int64(claims["expire_time"].(float64)) //convert float64 to int64
 
 		return &RefreshTokenDetail{
 			RefreshToken:       refreshToken,
@@ -213,11 +220,18 @@ func ExtractAccessTokenFrom(accessToken string) (*AccessTokenDetail, error) {
 			return nil, fmt.Errorf("token is invalid because cannot retrieve username")
 		}
 
-		accessExpireTime, ok := claims["expire_time"].(int64)
+		//the reason that we convert epire time to float 64 its kinda weird
+		// it seems when we retrive json from browser its convert to float 64
+		//because js only support 64 floating points so we should first conver to float64
+		//then after that we should convert to int64
+		//more information: https://stackoverflow.com/a/29690346
+		_, ok = claims["expire_time"].(float64)
 
 		if !ok {
 			return nil, fmt.Errorf("token is invalid because cannot retrieve expire time")
 		}
+
+		accessExpireTime := int64(claims["expire_time"].(float64))
 
 		return &AccessTokenDetail{
 			AccessToken:       accessToken,

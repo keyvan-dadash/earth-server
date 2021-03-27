@@ -119,3 +119,50 @@ func HandleSignUp() gin.HandlerFunc {
 
 	}
 }
+
+type expectedRefreshTokenJson struct {
+	Refresh string `form:"refresh" json:"refresh" xml:"refresh"  binding:"required"`
+}
+
+func HandleRefreshToken(redisDB *redis.Redis) gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+		var refreshJson expectedRefreshTokenJson
+
+		if err := c.ShouldBindJSON(&refreshJson); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		refreshTokenDetail, err := token.ExtractRefreshTokenFrom(refreshJson.Refresh)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		newToken, err := token.CreateTokenBasedOnRefreshToken(refreshTokenDetail)
+
+		if err != nil {
+			logrus.Errorf("Cannot create token from refresh token. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		_, err = token.SaveTokenDetail(redisDB, newToken, refreshTokenDetail.Username)
+
+		if err != nil {
+			logrus.Errorf("Cannot save genrated token. error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"access":  newToken.GetAccessToken(),
+			"refresh": newToken.GetRefreshToken(),
+		})
+
+	}
+}
