@@ -85,8 +85,8 @@ func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 			results := rawSession.Query(updateTypeQuery).Exec()
 
 			if results != nil {
-				logrus.Fatalf("[Fatal] cannot execute update column query with query %v. err: %v", updateTypeQuery, results)
-				return results == nil, results
+				logrus.Debugf("[Fatal] cannot execute update column query with query %v. err: %v", updateTypeQuery, results)
+				break
 			}
 		}
 	}

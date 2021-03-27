@@ -24,8 +24,8 @@ type User struct {
 	Password   string    `participate:"true" type:"text"`
 	Email      string    `participate:"true" type:"text"`
 	Nickname   string    `participate:"true" type:"text"`
-	UUID       uuid.UUID `participate:"true" type:"varchar"`
-	JoinedDate time.Time
+	UUID       uuid.UUID `participate:"true" type:"text"`
+	JoinedDate time.Time `participate:"true" type:"timestamp"`
 }
 
 //CreateUser create user instance based on given username and password
