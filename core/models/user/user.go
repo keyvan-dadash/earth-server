@@ -5,64 +5,8 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
-	"github.com/scylladb/gocqlx/v2/table"
-	"github.com/sod-lol/earth-server/libs/cassandra_table_managment"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var (
-	userByUsernameTableName = "user_by_username"
-	userByEmailTableName    = "user_by_email"
-	userByUUIDTableName     = "user_by_uuid"
-)
-
-var userTableByUsernameMeta = table.Metadata{
-	Name:    "user",
-	Columns: []string{"username", "password", "email", "nickname", "uuid", "joineddate"},
-	PartKey: []string{"username"},
-	SortKey: []string{"username"},
-}
-
-var userTable = table.New(userTableByUsernameMeta)
-
-var userTableByUsername = cassandra_table_managment.TableMetaData{
-	Name: userByUsernameTableName,
-	ColumnsAndTypes: map[string]string{
-		"username":   "text",
-		"password":   "text",
-		"email":      "text",
-		"nickname":   "text",
-		"uuid":       "text",
-		"joineddate": "timestamp"},
-	PartKey: []string{"username"},
-	SortKey: []string{},
-}
-
-var userTableByEmail = cassandra_table_managment.TableMetaData{
-	Name: userByEmailTableName,
-	ColumnsAndTypes: map[string]string{
-		"username":   "text",
-		"password":   "text",
-		"email":      "text",
-		"nickname":   "text",
-		"uuid":       "text",
-		"joineddate": "timestamp"},
-	PartKey: []string{"email"},
-	SortKey: []string{},
-}
-
-var userTableByUUID = cassandra_table_managment.TableMetaData{
-	Name: userByUUIDTableName,
-	ColumnsAndTypes: map[string]string{
-		"username":   "text",
-		"password":   "text",
-		"email":      "text",
-		"nickname":   "text",
-		"uuid":       "text",
-		"joineddate": "timestamp"},
-	PartKey: []string{"uuid"},
-	SortKey: []string{},
-}
 
 //User model
 type User struct { //TODO: we should clean a little bit this akward field names and provide better field nameing

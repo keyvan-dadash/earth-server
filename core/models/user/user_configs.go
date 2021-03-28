@@ -47,9 +47,9 @@ func CheckOrCreateUserTable(session *gocqlx.Session) (bool, error) {
 
 	tableManagment.SetKeySpace("earth")
 
-	tableManagment.AddTableMetaData(userTableByUsername)
-	tableManagment.AddTableMetaData(userTableByEmail)
-	tableManagment.AddTableMetaData(userTableByUUID)
+	tableManagment.AddTableMetaData(userTableByUsernameMetaData)
+	tableManagment.AddTableMetaData(userTableByEmailMetaData)
+	tableManagment.AddTableMetaData(userTableByUUIDMetaData)
 
 	err := tableManagment.CheckExistanceOfTables()
 

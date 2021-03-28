@@ -22,7 +22,7 @@ type UserRepo struct {
 //InsertUser function will try to insert to db
 func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 	if !inserdUnique {
-		return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
+		return ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
 	}
 
 	if err := ur.RetrieveUser(user); err != nil {
@@ -30,7 +30,7 @@ func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 			return err
 		}
 
-		return ur.Session.Query(userTable.Insert()).BindStruct(*user).ExecRelease()
+		return ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
 
 	}
 
@@ -44,12 +44,12 @@ func (ur *UserRepo) RetrieveUser(user *User) error {
 }
 
 func (ur *UserRepo) UpdateUser(username string, updatedUser *User, updatedColumns ...string) (bool, error) {
-	return ur.Session.Query(userTable.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease()
+	return ur.Session.Query(userTableByUsername.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease()
 }
 
 func (ur *UserRepo) DeleteUser(username string) error {
 	user := User{
 		Username: username,
 	}
-	return ur.Session.Query(userTable.Delete()).BindStruct(user).ExecRelease()
+	return ur.Session.Query(userTableByUsername.Delete()).BindStruct(user).ExecRelease()
 }
