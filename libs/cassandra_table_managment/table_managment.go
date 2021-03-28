@@ -96,16 +96,21 @@ func (t *TableManagment) updateTable(returnOnFailure bool) error {
 
 		addColumnQuery, updateColumnsQuery := t.tables[tableMetaData_index].BuildUpdateQueryFrom(currentColumns)
 
-		result := t.addColumnToTableMetaData(addColumnQuery)
+		if addColumnQuery != "" {
 
-		if result != nil {
-			return result
+			result := t.addColumnToTableMetaData(addColumnQuery)
+
+			if result != nil {
+				return result
+			}
 		}
 
-		err = t.updateColumnsDataType(updateColumnsQuery, returnOnFailure)
+		if len(updateColumnsQuery) != 0 {
+			err = t.updateColumnsDataType(updateColumnsQuery, returnOnFailure)
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -68,7 +68,7 @@ func (t *TableMetaData) BuildCreateTableQuery() string {
 
 	query.WriteString(t.Name)
 
-	query.WriteString("\n")
+	query.WriteString(" (\n")
 
 	var b strings.Builder
 
@@ -105,7 +105,7 @@ func (t *TableMetaData) BuildCreateTableQuery() string {
 
 	query.WriteString("PRIMARY KEY(")
 	query.WriteString(b.String())
-	query.WriteString(");")
+	query.WriteString("));")
 
 	return query.String()
 }
