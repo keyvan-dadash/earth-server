@@ -35,6 +35,31 @@ type TableMetaData struct {
 	SortKey         []string
 }
 
+func (t *TableMetaData) BuildExistanceQuery(keyspace string) string {
+
+	var existanceQuery strings.Builder
+
+	existanceQuery.WriteString("SELECT table_name FROM system_schema.tables WHERE keyspace_name='")
+	existanceQuery.WriteString(keyspace)
+	existanceQuery.WriteString("' And table_name='")
+	existanceQuery.WriteString(t.Name)
+	existanceQuery.WriteString("';")
+
+	return existanceQuery.String()
+}
+
+func (t *TableMetaData) BuildCollectColumnsQuery(keyspace string) string {
+	var collectColumns strings.Builder
+
+	collectColumns.WriteString("SELECT column_name, type FROM system_schema.columns WHERE keyspace_name = '")
+	collectColumns.WriteString(keyspace)
+	collectColumns.WriteString("' And table_name='")
+	collectColumns.WriteString(t.Name)
+	collectColumns.WriteString("';")
+
+	return collectColumns.String()
+}
+
 func (t *TableMetaData) BuildCreateTableQuery() string {
 
 	var query strings.Builder
@@ -80,7 +105,7 @@ func (t *TableMetaData) BuildCreateTableQuery() string {
 
 	query.WriteString("PRIMARY KEY(")
 	query.WriteString(b.String())
-	query.WriteString(")")
+	query.WriteString(");")
 
 	return query.String()
 }
@@ -131,7 +156,7 @@ func (t *TableMetaData) BuildUpdateQueryFrom(oldColumnAndTypes map[string]string
 
 	addColumnQueryString = addColumnQueryString[:len(addColumnQueryString)-2] //erase ', '
 
-	addColumnQueryString += ")"
+	addColumnQueryString += ");"
 
 	if !hasColumnUpdate {
 		return "", updateColumnTypes
@@ -161,13 +186,15 @@ func (t *TableMetaData) BuildDeleteQuery(oldColumnAndTypes map[string]string) st
 		}
 	}
 
-	deleteQuery.WriteString(";")
+	deleteQueryString := deleteQuery.String()
+
+	deleteQueryString = deleteQueryString[:len(deleteQueryString)-2] //erase ', '
+
+	deleteQueryString += ";"
 
 	if !hasDropColumn {
 		return ""
 	}
 
-	deleteQueryString := deleteQuery.String()
-
-	return deleteQueryString[:len(deleteQueryString)-2] //erase ', '
+	return deleteQueryString
 }
