@@ -86,6 +86,7 @@ services:
     ports:
       - "127.0.0.1:9043:9042"
     volumes:
+      - ./cassandra.yaml:/etc/cassandra/cassandra.yaml
       - ./data_nd2:/var/lib/cassandra
     expose: 
       - '6000'
