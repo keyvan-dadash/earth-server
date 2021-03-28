@@ -22,7 +22,26 @@ type UserRepo struct {
 //InsertUser function will try to insert to db
 func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 	if !inserdUnique {
-		return ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
+		err := ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		err = ur.Session.Query(userTableByEmail.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		err = ur.Session.Query(userTableByUUID.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
 	}
 
 	if err := ur.RetrieveUser(user); err != nil {
@@ -30,7 +49,25 @@ func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 			return err
 		}
 
-		return ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
+		err := ur.Session.Query(userTableByUsername.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		err = ur.Session.Query(userTableByEmail.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		err = ur.Session.Query(userTableByUUID.Insert()).BindStruct(*user).ExecRelease()
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
 
@@ -40,16 +77,43 @@ func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 
 func (ur *UserRepo) RetrieveUser(user *User) error {
 	q := qb.Select(userByUsernameTableName).Where(qb.Eq("username")).Query(*ur.Session).BindStruct(user)
+
 	return q.Get(user)
 }
 
 func (ur *UserRepo) UpdateUser(username string, updatedUser *User, updatedColumns ...string) (bool, error) {
-	return ur.Session.Query(userTableByUsername.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease()
+	if ok, err := ur.Session.Query(userTableByUsername.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease(); err != nil || !ok {
+		return ok, err
+	}
+
+	if ok, err := ur.Session.Query(userTableByEmail.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease(); err != nil || !ok {
+		return ok, err
+	}
+
+	if ok, err := ur.Session.Query(userTableByUUID.Update(updatedColumns...)).BindStruct(*updatedUser).ExecCASRelease(); err != nil || !ok {
+		return ok, err
+	}
+
+	return true, nil
 }
 
 func (ur *UserRepo) DeleteUser(username string) error {
 	user := User{
 		Username: username,
 	}
-	return ur.Session.Query(userTableByUsername.Delete()).BindStruct(user).ExecRelease()
+	ur.RetrieveUser(&user)
+
+	if err := ur.Session.Query(userTableByUsername.Delete()).BindStruct(user).ExecRelease(); err != nil {
+		return err
+	}
+
+	if err := ur.Session.Query(userTableByEmail.Delete()).BindStruct(user).ExecRelease(); err != nil {
+		return err
+	}
+
+	if err := ur.Session.Query(userTableByUUID.Delete()).BindStruct(user).ExecRelease(); err != nil {
+		return err
+	}
+
+	return nil
 }
