@@ -55,7 +55,7 @@ var userTableByUUIDMetaData = cassandra_table_managment.TableMetaData{
 
 //user table orm by username
 var userTableByUsernameMeta = table.Metadata{
-	Name:    "user",
+	Name:    userByUsernameTableName,
 	Columns: []string{"username", "password", "email", "nickname", "uuid", "joineddate"},
 	PartKey: []string{"username"},
 	SortKey: []string{"username"},
@@ -65,6 +65,7 @@ var userTableByUsername = table.New(userTableByUsernameMeta)
 
 //user table orm by emailuserTableByUsernameMeta
 var userTableByEmailMeta = table.Metadata{
+	Name:    userByEmailTableName,
 	Columns: []string{"username", "password", "email", "nickname", "uuid", "joineddate"},
 	PartKey: []string{"username"},
 	SortKey: []string{"username"},
@@ -74,7 +75,7 @@ var userTableByEmail = table.New(userTableByEmailMeta)
 
 //user table orm by uuid
 var userTableByUUIDMeta = table.Metadata{
-	Name:    "user",
+	Name:    userByUUIDTableName,
 	Columns: []string{"username", "password", "email", "nickname", "uuid", "joineddate"},
 	PartKey: []string{"username"},
 	SortKey: []string{"username"},

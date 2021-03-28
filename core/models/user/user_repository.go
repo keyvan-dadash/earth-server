@@ -39,7 +39,7 @@ func (ur *UserRepo) InsertUser(user *User, inserdUnique bool) error {
 }
 
 func (ur *UserRepo) RetrieveUser(user *User) error {
-	q := qb.Select("user").Where(qb.Eq("username")).Query(*ur.Session).BindStruct(user)
+	q := qb.Select(userByUsernameTableName).Where(qb.Eq("username")).Query(*ur.Session).BindStruct(user)
 	return q.Get(user)
 }
 

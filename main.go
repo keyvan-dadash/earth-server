@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gocql/gocql"
@@ -14,9 +15,11 @@ import (
 )
 
 func connectToDB() *gocqlx.Session {
-	cluster := gocql.NewCluster("cassandra")
+	cluster := gocql.NewCluster("cass1", "cass2")
 	cluster.Keyspace = "earth"
 	cluster.Consistency = gocql.One
+	cluster.Timeout = 6 * time.Second
+	cluster.ConnectTimeout = 6 * time.Second
 
 	session, err := gocqlx.WrapSession(cluster.CreateSession())
 

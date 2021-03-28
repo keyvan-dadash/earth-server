@@ -15,7 +15,8 @@ services:
       - backend
     depends_on: 
       - redis-auth
-      - cassandra
+      - cass1
+      - cass2
 
   redis-auth:
     image: "redis"
@@ -25,20 +26,101 @@ services:
     networks: 
       - backend
 
-  cassandra:
-    image: cassandra
+  # cassandra:
+  #   image: cassandra:latest
+  #   volumes:
+  #     - ./cassandra.yaml:/etc/cassandra/cassandra.yaml
+  #     - ./data:/var/lib/cassandra
+  #   expose: 
+  #     - '6000'
+  #     - '7000'
+  #     - '7001'
+  #     - '9042'
+  #   ports:
+  #     - '127.0.0.1:10333:9042'
+  #   networks: 
+  #     - backend
+
+  cass1:
+    image: cassandra:latest
+    container_name: earth_cass1
+    mem_limit: 2g
+    hostname: cass1
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+        interval: 5s
+        timeout: 5s
+        retries: 60
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:10334:9042"
     volumes:
       - ./cassandra.yaml:/etc/cassandra/cassandra.yaml
-      - ./data:/var/lib/cassandra
+      - ./data_nd1:/var/lib/cassandra
     expose: 
       - '6000'
       - '7000'
       - '7001'
       - '9042'
-    ports:
-      - '127.0.0.1:10333:9042'
-    networks: 
+    environment: &environment
+      CASSANDRA_ENDPOINT_SNITCH: SimpleSnitch
+      CASSANDRA_SEEDS: "cass1"
+      CASSANDRA_RACK: West
+      CASSANDRA_DC: Mars
+      HEAP_NEWSIZE: 128M
+      MAX_HEAP_SIZE: 2048M
+
+  cass2:
+    image: cassandra:latest
+    container_name: earth_cass2
+    hostname: cass2
+    mem_limit: 3g
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+        interval: 5s
+        timeout: 5s
+        retries: 60
+    networks:
       - backend
+    ports:
+      - "127.0.0.1:9043:9042"
+    volumes:
+      - ./data_nd2:/var/lib/cassandra
+    expose: 
+      - '6000'
+      - '7000'
+      - '7001'
+      - '9042'
+    environment: *environment
+    depends_on:
+      - cass1
+
+  # cass3:
+  #   image: cassandra
+  #   container_name: earth_cass3
+  #   hostname: cass3
+  #   mem_limit: 1g
+  #   healthcheck:
+  #       test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+  #       interval: 5s
+  #       timeout: 5s
+  #       retries: 60
+  #   networks:
+  #     - backend
+  #   ports:
+  #     - "127.0.0.1:9044:9042"
+  #   volumes:
+  #     - ./cassandra.yaml:/etc/cassandra/cassandra.yaml
+  #     - ./data-node2:/var/lib/cassandra
+  #   expose: 
+  #     - '6000'
+  #     - '7000'
+  #     - '7001'
+  #     - '9042'
+  #   environment: *environment
+  #   depends_on:
+  #     - cass2
 
   cassandra-web:
     image: cassandra-ui
@@ -50,14 +132,12 @@ services:
       - CASSANDRA_USER=cassandra
       - CASSANDRA_PASSWORD=cassandra
     depends_on: 
-      - cassandra
+      - cass1
+      - cass2
     ports:
-      - '10334:3000'
+      - '10335:3000'
     networks: 
       - backend
-
-
-
 
 networks: 
   backend:
