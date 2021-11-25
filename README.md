@@ -21,4 +21,4 @@ What lessons i learned from this project(albeit it abandon) are:
 4. How distributed DB and distributed systems work, After this project, I attached to distributed systems and distributed DB.
 
 
-All of the above lessons made me happy and extended my knowledge, which became helpful in my carries.
+All of the above lessons made me happy and extended my knowledge, which became helpful in my future carries.
