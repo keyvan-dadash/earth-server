@@ -1,4 +1,4 @@
-# Earth Backend
+# Earth Social Media Backend
 
 
 ## Intro
