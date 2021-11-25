@@ -15,7 +15,7 @@ When I was writing authentication with go gin and Cassandra DB, I realized that 
 
 What lessons i learned from this project(albeit it abandon) are:
 
-1. *** Do your feasibility study more efficiently and practically by writing some small code, not by reading just some document. ***
+1. ***Do your feasibility study more efficiently and practically by writing some small code, not by reading just some document.***
 2. How does Cassandra work and how to design tables and queries in Cassandra, and what challenges does Cassandra DB introduce to the project.
 3. How to use reflection in golang, For example, to build auto migration or other management tools to manage your codes easily without executing commands manually every time.
 4. How distributed DB and distributed systems work, After this project, I attached to distributed systems and distributed DB.
